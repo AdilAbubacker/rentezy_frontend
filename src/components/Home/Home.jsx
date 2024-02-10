@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Home.css'
-import LandingPageHeader from '../LandingPageHeader/LandingPageHeader';
-import LandingPageCard from '../LandingPageCard/LandingPageCard';
-import LandingPageFooter from '../LandingPageFooter/LandingPageFooter';
-import { Button } from '../Button/Button';
-import { Slider } from '../Slider/Slider';
-import { CheckBox } from '../CheckBox/CheckBox';
-import { Img } from '../Img/Img';
-import { List } from '../List/List';
-import { Text } from '../Text/Text';
-import { Input } from '../Input/Input';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
