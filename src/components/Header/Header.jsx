@@ -1,20 +1,18 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, NavLink, useActionData } from 'react-router-dom'
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { logout } from '../../features/auth/authSlice';
 
 export default function Header() {
     const isAuthenticated = useSelector(state=>state.auth.isAuthenticated)
     const user = useSelector(state=>state.auth.user)
     const isLandlord = useSelector(state=>state.auth.isLandlord)
-
     const dispatch = useDispatch()
 
     const logout1 = async () => {
         try {
-          const response = await axios.post(
-            'http://127.0.0.1:8001/api/logout/',
+          const response = await axiosInstance.post('/api/logout/',
             {},
             {
               headers: {

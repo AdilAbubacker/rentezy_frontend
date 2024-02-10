@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 
 const Input = React.forwardRef(
   (

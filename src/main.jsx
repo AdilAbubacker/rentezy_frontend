@@ -1,7 +1,11 @@
 import { Provider } from 'react-redux'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.css'
+// import './index.css'
+import './styles/index.css'
+import "./styles/color.css";
+import "./styles/font.css";
+import "./styles/tailwind.css";
 import { createBrowserRouter, 
          createRoutesFromElements, 
          RouterProvider,
@@ -12,7 +16,8 @@ import NewHome from './components/NewHome/NewHome.jsx'
 import About from './components/About/About.jsx'
 import Contact from './components/Contact/Contact.jsx'
 import Github from './components/Github/Github.jsx'
-import store from './store/Store.jsx'
+import { store, persistor} from './store/Store.jsx'
+import { PersistGate } from 'redux-persist/integration/react';
 import Login from './components/Login/Login.jsx'
 import LandlordRoute from './routes/LandlordRoute/LandlordRoute.jsx'
 import RequireAuth from './routes/RequireAuth/RequireAuth.jsx'
@@ -35,7 +40,13 @@ import AdminHome from './components/AdminHome/AdminHome.jsx'
 import AdminProperties from './components/AdminProperties/AdminProperties.jsx'
 import AdminTenants from './components/AdminTenants/AdminTenants.jsx'
 import Payment from './pages/tenant/Payment/Payment.jsx'
+import NewLanding from './pages/tenant/NewLanding/NewLanding.jsx'
 import Chat from './pages/tenant/Chat/Chat.jsx'
+import LandlordChat from './pages/LandlordChat/LandlordChat.jsx';
+import LandlordBookings from './pages/LandlordBookings/LandlordBookings.jsx';
+import LandlordRents from './pages/LandlordRents/LandlordRents.jsx';
+import LandlordRentDetails from './pages/LandlordRentDetails/LandlordRentDetails.jsx';
+// import newLanding from './pages/newLanding/newLanding.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -62,15 +73,23 @@ const router = createBrowserRouter(
         </Route>
       </Route>
       <Route path='chat' element={<Chat/>}/>
+      <Route path='newLanding' element={<NewLanding/>}/>
 
 
-      <Route path='landlord/' element={<LandlordLayout/>}>
-        <Route element={<LandlordRoute/>}>
+      <Route element={<LandlordRoute/>}>
+        <Route path='landlord/' element={<LandlordLayout/>}>
           <Route path='' element={<LandlordLanding/>}/>
           <Route path='properties/' element={<Properties/>}/>
+          <Route path='properties/' element={<Properties/>}/>
           <Route path='properties/create' element={<CreateProperty/>}/>
+          <Route path='bookings' element={<LandlordBookings/>}/>
+          <Route path='rent-details' element={<LandlordRents/>}/>
+          <Route path='rent-details/:rentId' element={<LandlordRentDetails/>}/>
           <Route path='properties/:id/edit' element={<EditProperty/>}/>
+          <Route path='scheduled-visits' element={<EditProperty/>}/>
         </Route>
+        <Route path='landlord/chat' element={<LandlordChat/>}/>
+        <Route path='landlord/chat/:tenantId' element={<LandlordChat/>}/>
       </Route>
 
       <Route path='admin/' element={<AdminLayout/>}>
@@ -89,7 +108,9 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router}/>
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterProvider router={router}/>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
 )

@@ -1,6 +1,6 @@
 import React from 'react'
-import './NewHome.css'
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import './NewHome.css'
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function NewHome() {

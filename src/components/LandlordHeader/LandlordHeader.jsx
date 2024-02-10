@@ -1,10 +1,10 @@
 import React from 'react'
-import './AdminHeader.css'
+import '../AdminHeader/AdminHeader.css'
 import { RiMenu2Fill } from 'react-icons/ri'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-function AdminHeader() {
+function LandlordHeader() {
   return (
     <div className="admin-header">
     <div className='d-flex align-items-center' style={{ gap: "10px" }}>
@@ -18,7 +18,7 @@ function AdminHeader() {
         alt="" style={{ width: '180px', height: 'auto', overflow:'hidden' }} />
         
       </div>
-        <h5>Admin Panel</h5>
+        <h5>Landlord Panel</h5>
     </div>
     <div className="admin-header-item">
     
@@ -42,4 +42,4 @@ function AdminHeader() {
   )
 }
 
-export default AdminHeader
+export default LandlordHeader

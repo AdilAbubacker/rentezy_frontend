@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* index.css
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities'; */
+
+body {
+  font-family: 'Manrope', sans-serif;
+  /* Add any additional global styles here */
+}

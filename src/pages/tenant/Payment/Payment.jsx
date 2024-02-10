@@ -24,6 +24,7 @@ function Payment() {
         }
       }, []);
 
+
       const handleBookNow = async () => {
         try {
           const roomDetails = {
@@ -31,13 +32,25 @@ function Payment() {
             tenant_id: 2,
             no_of_rooms: 1
           }
-          const response = await axios.post('http://127.0.0.1:8005/api/book/', roomDetails)
-          console.log(response.data.checkout_url,'uhugug')
-          sessionId = response.data.checkout_url;
+          const response = await axios.post('http://127.0.0.1:8005/api/book/', roomDetails);
+        
+          // Check if the response contains the checkout_url
+          if (response.data.checkout_url) {
+            const checkoutUrl = response.data.checkout_url;
+            console.log(checkoutUrl);
+
+            // Redirect to the checkout URL
+            window.location.href = checkoutUrl;
+          } else {
+            console.error('Error: Checkout URL not found in the response');
+          }
+
         } catch (error) {
-          
+          console.error('error while booking:', error);
         }
-      }
+      } 
+
+
   return (
     <div>
         <section>
@@ -51,11 +64,9 @@ function Payment() {
             <h5>$20.00</h5>
             </div>
             </div>
-            <form>
-            <button type="submit" onClick={handleBookNow}>
+            <button onClick={handleBookNow}>
                 Checkout
             </button>
-            </form>
         </section>
     </div>
   )

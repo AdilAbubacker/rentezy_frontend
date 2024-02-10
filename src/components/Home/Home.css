@@ -1,5 +1,5 @@
 body {
-    font-family: "Inter", sans-serif;
+    font-family: "Manrope", sans-serif;
     line-height: 1.5;
     background: #ffffff;
     overflow-x: hidden;
@@ -54,7 +54,7 @@ body {
       color: #1A374D !important; }
   
   h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
-    font-family: "Source Serif Pro", serif; }
+    font-family: "Manrope" }
   
   .btn {
     padding-top: 12px;

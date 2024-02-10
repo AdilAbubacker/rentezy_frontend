@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function TenantProperties() {
     const [properties, setProperties] = useState([])
@@ -19,6 +21,7 @@ function TenantProperties() {
             }
         )();
     }, [])
+    
   return (
     <div>
        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">               

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+// import { Button, Img, Input, List, Text } from "../../../components";
 import { Img } from '../../../components/Img/img';
 import { List } from '../../../components/List/List';
 import { Button } from '../../../components/Button/Button';
