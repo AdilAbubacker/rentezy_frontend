@@ -1,29 +1,10 @@
 import React from 'react'
 
-import { useNavigate } from "react-router-dom";
-import { Button } from '../../../components/Button/Button';
-import { CheckBox } from '../../../components/CheckBox/CheckBox';
-import { Input } from '../../../components/Input/Input'
-import { Img } from '../../../components/Img/Img'
-import { List } from '../../../components/List/List';
-import { Slider } from '../../../components/Slider/Slider'
-import { Text } from '../../../components/Text/Text';
-import LandingPageCard from '../../../components/LandingPageCard/LandingPageCard'
-import LandingPageFooter from '../../../components/LandingPageFooter/LandingPageFooter'
-import LandingPageHeader from '../../../components/LandingPageHeader/LandingPageHeader';
-
 
 function newLanding() {
     const navigate = useNavigate();
 
-  const landingPageCardPropList = [
-    {},
-    { image: "images/img_image_1.png" },
-    { image: "images/img_image_2.png" },
-    { image: "images/img_image_3.png" },
-    { image: "images/img_image_4.png" },
-    { image: "images/img_image_5.png" },
-  ];
+
   const sliderRef = React.useRef(null);
   const [sliderState, setsliderState] = React.useState(0);
 
