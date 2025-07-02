@@ -183,6 +183,80 @@ Schemas live in `schemas/` for reference.
 Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ---
+flowchart LR
+  subgraph Clients
+    A[React Frontend]
+    B[Mobile App]
+  end
+
+  subgraph “API Gateway”
+    GW
+  end
+
+  subgraph “Auth Service”
+    Auth
+  end
+
+  subgraph “Core Services”
+    Prop[Property Service]
+    Book[Booking Service]
+    Rent[Rent Service]
+    Visit[Schedule Visit Service]
+  end
+
+  subgraph “Auxiliary Services”
+    Chat[Chat Service]
+    Notif[Notification Service]
+    Search[Search Service]
+  end
+
+  subgraph “Event Bus”
+    Kafka
+  end
+
+  subgraph “Datastores”
+    PG[(PostgreSQL)]
+    ES[(Elasticsearch)]
+    RD[(Redis)]
+  end
+
+  subgraph “Background Worker”
+    Celery
+  end
+
+  A -->|HTTPS| GW
+  B -->|HTTPS| GW
+
+  GW --> Auth
+  GW --> Prop
+  GW --> Book
+  GW --> Rent
+  GW --> Visit
+  GW --> Chat
+  GW --> Notif
+  GW --> Search
+
+  Auth --> PG
+
+  Prop --> PG
+  Book --> PG
+  Rent --> PG
+  Visit --> PG
+
+  Book -->|produce booking.events| Kafka
+  Rent -->|produce rent.events| Kafka
+  Visit -->|produce visit.events| Kafka
+
+  Kafka --> Search
+  Kafka --> Notif
+
+  Search --> ES
+  Notif --> RD
+  Chat --> RD
+
+  Celery --> Rent
+  Celery --> Notif
+
 
 ## License
 
