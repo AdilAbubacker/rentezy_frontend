@@ -1,378 +1,132 @@
-# 🏡 RentEzy - Enterprise-Grade Property Management Platform 
+RentEzy - A Scalable Property Management PlatformRentEzy is a comprehensive property management and rental platform built on a modern, event-driven microservices architecture. It is designed for high availability, fault tolerance, and horizontal scalability, handling everything from property listings and user chats to complex, concurrency-safe booking and automated payments.This project is a demonstration of a distributed system designed to solve real-world engineering challenges.🚀 Key Engineering & Architectural FeaturesThis platform was built from the ground up to be scalable, resilient, and maintainable. Here are the core technical highlights:Event-Driven Microservices: The entire system is built on a loosely coupled architecture with 10+ independent services (see diagram below). Services communicate asynchronously using Apache Kafka as an event broker, which ensures system resilience, fault tolerance, and eliminates single points of failure.Concurrency-Safe Bookings: Solves the classic "race condition" problem in bookings. The system uses a robust, database-first approach to ensure booking integrity. By combining transaction.atomic() with F() expression updates and a database-level CheckConstraint (available_slots >= 0), the system guarantees that property viewings are booked reliably without conflicts or double-bookings, even under high concurrent load.# This implementation avoids a classic get-then-save race condition
+# by enforcing constraints at the database level.
 
-[![Live Demo](https://img.shields.io/badge/Demo-Live-green)](https://rentezy-frontend-g63i-git-main-adilabubackers-projects.vercel.app/)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/AdilAbubacker)
-[![Tech Stack](https://img.shields.io/badge/Stack-Microservices-orange)](#-technology-stack---built-with-the-best)
-[![Architecture](https://img.shields.io/badge/Architecture-Event--Driven-purple)](#%EF%B8%8F-system-architecture---the-beast-under-the-hood)
+# --- models.py ---
+class ClassSession(models.Model):
+    available_slots = models.IntegerField()
 
-> *A comprehensive, microservices-based web application designed to streamline the entire property rental lifecycle. It connects property owners, managers, and tenants through a seamless, real-time platform, automating everything from property listings and visit scheduling to rent collection and communication.*
-
----
-
-<div align="center">
-  <img src="./rentezylanding.png" alt="RentEzy - Property search interface" width="900">
-</div>
-
----
-
-## 🎯 The Challenge
-
-Building a property rental platform is easy. Building one that **handles thousands of concurrent bookings without race conditions, processes payments automatically while you sleep, and scales infinitely** - that's the real challenge.
-
-RentEzy isn't just another CRUD app. It's a **fully distributed, event-driven microservices architecture** designed to solve real-world problems that break traditional monolithic applications.
-
----
-
-## 🏗️ System Architecture - The Beast Under The Hood
-
-```mermaid
-graph TB
-  
-    %% User Layer
-    User[👤 User Interface<br/>React + Redux]
-    Mobile[📱 Mobile App<br/>React Native]
-    
-    %% API Gateway
-    Gateway[🌐 API Gateway<br/>Django<br/>Authentication • Authorization<br/>Rate Limiting • Routing]
-    
-    %% Load Balancer
-    LB[⚖️ Load Balancer<br/>Nginx]
-    
-    %% Core Services
-    Auth[🔐 Auth Service<br/>JWT • User Management<br/>Role-based Access]
-    Property[🏠 Property Service<br/>Listings • Management<br/>Property Details]
-    Booking[📅 Booking Service<br/>Reservations • Scheduling<br/>Concurrency Control]
-    Rent[💰 Rent Service<br/>Recurring Payments<br/>Automated Billing]
-    Chat[💬 Chat Service<br/>WebSocket • Real-time<br/>Message History]
-    Notification[🔔 Notification Service<br/>Real-time Events<br/>Push Notifications]
-    Search[🔍 Search Service<br/>Elasticsearch<br/>Advanced Filtering]
-    
-    %% Message Queue & Event Bus
-    Kafka[📨 Apache Kafka<br/>Event Streaming<br/>Service Communication]
-    Zookeeper[🔧 Zookeeper<br/>Kafka Coordination]
-    
-    %% Background Processing
-    Celery[⚙️ Celery<br/>Background Tasks]
-    CeleryBeat[⏰ Celery Beat<br/>Scheduled Jobs<br/>Rent Automation]
-    
-    %% Caching Layer
-    Redis[⚡ Redis<br/>Caching • Sessions<br/>Real-time Data]
-    
-    %% Databases
-    AuthDB[(🗃️ Auth DB<br/>PostgreSQL)]
-    PropertyDB[(🗃️ Property DB<br/>PostgreSQL)]
-    BookingDB[(🗃️ Booking DB<br/>PostgreSQL)]
-    RentDB[(🗃️ Rent DB<br/>PostgreSQL)]
-    ChatDB[(🗃️ Chat DB<br/>PostgreSQL)]
-    SearchIndex[(🔍 Search Index<br/>Elasticsearch)]
-    
-    %% External Services
-    Stripe[💳 Stripe<br/>Payment Gateway]
-    AWS[☁️ AWS Services<br/>S3 • EFS • EKS]
-    
-    %% Container Orchestration
-    K8s[🎯 Kubernetes<br/>Container Orchestration<br/>Auto-scaling • Service Discovery]
-    Docker[🐳 Docker<br/>Containerization]
-    
-    %% Connections
-    User --> LB
-    Mobile --> LB
-    LB --> Gateway
-    
-    Gateway --> Auth
-    Gateway --> Property
-    Gateway --> Booking
-    Gateway --> Rent
-    Gateway --> Chat
-    Gateway --> Notification
-    Gateway --> Search
-    
-    %% Service to Database connections
-    Auth --> AuthDB
-    Property --> PropertyDB
-    Booking --> BookingDB
-    Rent --> RentDB
-    Chat --> ChatDB
-    Search --> SearchIndex
-    
-    %% Event-driven communication
-    Property --> Kafka
-    Booking --> Kafka
-    Rent --> Kafka
-    Chat --> Kafka
-    Notification --> Kafka
-    
-    Kafka --> Zookeeper
-    Kafka --> Celery
-    
-    %% Background processing
-    CeleryBeat --> Celery
-    Celery --> Rent
-    Celery --> Notification
-    
-    %% Caching
-    Auth --> Redis
-    Property --> Redis
-    Booking --> Redis
-    Chat --> Redis
-    
-    %% External integrations
-    Rent --> Stripe
-    Property --> AWS
-    Chat --> AWS
-    
-    %% Infrastructure
-    K8s -.-> Auth
-    K8s -.-> Property
-    K8s -.-> Booking
-    K8s -.-> Rent
-    K8s -.-> Chat
-    K8s -.-> Notification
-    K8s -.-> Search
-    K8s -.-> Kafka
-    K8s -.-> Redis
-    
-    Docker -.-> K8s
-    
-    %% Styling
-    classDef userLayer fill:#e1f5fe
-    classDef gateway fill:#f3e5f5
-    classDef service fill:#e8f5e8
-    classDef database fill:#fff3e0
-    classDef infrastructure fill:#fce4ec
-    classDef external fill:#f1f8e9
-    classDef messaging fill:#e0f2f1
-    
-    class User,Mobile userLayer
-    class Gateway,LB gateway
-    class Auth,Property,Booking,Rent,Chat,Notification,Search service
-    class AuthDB,PropertyDB,BookingDB,RentDB,ChatDB,SearchIndex database
-    class K8s,Docker,Redis,Celery,CeleryBeat infrastructure
-    class Stripe,AWS external
-    class Kafka,Zookeeper messaging
-```
-
----
-
-### 🎪 19+ Independent Microservices
-
-Each service is a self-contained, independently deployable unit with its own database, business logic, and scaling policy:
-
-| Service | Purpose | Why It Exists |
-|---------|---------|---------------|
-| 🚪 **API Gateway** | Authentication, routing, rate limiting | Single entry point, security enforcement |
-| 🔐 **Auth Service** | User management, JWT tokens | Centralized identity management |
-| 📅 **Booking Service** | Property reservations, availability | Handles complex booking logic with database constraints |
-| 🏢 **Property Service** | Property listings, details | Core business domain |
-| 💰 **Rent Service** | Recurring payments, late fees | Automated monthly billing with Celery Beat |
-| 💬 **Chat Service** | Real-time messaging | WebSocket-based instant communication |
-| 🔔 **Notification Service** | Event-driven alerts | Decoupled notification delivery |
-| 🔍 **Search Service** | Property search API | High-performance search interface |
-| 📊 **Search Consumer** | Index updates via Kafka | Async Elasticsearch indexing |
-| 🗄️ **Elasticsearch** | Full-text search engine | Lightning-fast property discovery |
-| ⚡ **Redis** | Caching, sessions, queues | Sub-millisecond data access |
-| 📋 **Schedule Visit** | Appointment booking | Separate concern for visit management |
-| 🎫 **EFS Role** | Storage orchestration | Persistent volume management |
-| 🐳 **Kafka + Zookeeper** | Message broker + coordination | Event streaming backbone |
-
----
-
-## 🚀 What Makes This Architecture Special
-
-### 1️⃣ **Race Condition Mastery** 🏁
-
-```python
-# The Problem: Two users booking the same property simultaneously
-# The Solution: Database-level constraints + Atomic operations
-
-# Database Model with Constraint
-class AvailableRooms(models.Model):
-    available_quantity = models.IntegerField()
-    
     class Meta:
         constraints = [
+            # Never allow available_slots to go negative
             models.CheckConstraint(
-                check=Q(available_quantity__gte=0),
-                name="available_quantity_non_negative"
+                check=Q(available_slots__gte=0),
+                name="available_slots_non_negative"
             )
         ]
 
-# Booking Logic - Optimistic Concurrency Control
+# --- views.py ---
 try:
-    with transaction.atomic():
-        # Create booking first
+    with transaction.atomic(): 
+        # 1. Create the booking
         booking = Booking.objects.create(
-            room_id=room_id,
+            session_id=session_id,
             client_name=client_name,
             client_email=client_email
         )
-        
-        # Atomic decrement - evaluated in database, not Python
-        AvailableRooms.objects.filter(id=room_id).update(
-            available_quantity=F("available_quantity") - 1
+
+        # 2. Atomically decrement slot count at the DB level
+        ClassSession.objects.filter(id=session_id).update(
+            available_slots=F("available_slots") - 1
         )
-        
+
 except IntegrityError as e:
-    if "available_quantity_non_negative" in str(e):
-        return {"error": "Property is fully booked"}
-    return {"error": "Booking failed"}
-```
+    # 3. Catch the DB-level constraint violation
+    msg = str(e).lower()
+    if "available_slots_non_negative" in msg:
+        return Response({"detail": "Session is fully booked."}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+    return Response({"detail": "Booking failed: " + msg}, 
+                    status=status.HTTP_400_BAD_REQUEST)
 
-**Why This is Superior:**
-- ✅ Database enforces the constraint **atomically** (no race condition possible)
-- ✅ `F()` expressions avoid read-modify-write races - operation happens in SQL
-- ✅ **Optimistic concurrency** = better performance than pessimistic locking
-- ✅ Constraint violation automatically rolls back the entire transaction
-- ✅ Cleaner code with graceful error handling
+return Response({"message": "Booking successful!", "booking_id": booking.id}, 
+                status=status.HTTP_201_CREATED)
 
-**Impact:** Zero double-bookings across thousands of concurrent requests, with better throughput than traditional row-locking.
+Automated Recurring Payments: A robust scheduling system using Celery Beat and Redis manages all automated tasks. This includes monthly recurring rent collection, automated late fee implementation, and real-time payment reminders, all securely processed via the Stripe API.Real-Time Communication: A stateful service built with Django Channels and WebSockets powers real-time chat between tenants and property managers. This same service is used for pushing event-driven, real-time notifications to users (e.g., "Your booking is confirmed").High-Performance Search: A dedicated search service leveraging Elasticsearch provides millisecond-level, full-text search across all property listings, with advanced filtering and faceting capabilities.Cloud-Native Deployment: The entire application is fully containerized with Docker and orchestrated using Kubernetes (AWS EKS). This allows for automated scaling of individual services based on demand. Persistent storage for stateful services is managed via AWS EFS.Centralized API Gateway: A custom API Gateway (built with Django) acts as the single, secure entry point for all client requests. It is responsible for authentication (JWT), service discovery, request routing, and rate limiting.🏛️ System Architecture DiagramThis diagram illustrates the event-driven flow of information between the key microservices.graph TD
+    subgraph Client
+        WebApp[React JS Client]
+    end
 
-### 2️⃣ **Event-Driven Intelligence** 🧠
+    subgraph "Kubernetes Cluster (AWS EKS)"
+        GW[API Gateway<br>(Django, JWT Auth, Routing)]
 
-```
-User Books Property → Kafka Event → Payment Service Charges
-                                  ↓
-                          Payment Fails?
-                                  ↓
-                    Celery Task → Release Room Automatically
-                                  ↓
-                          Notification Sent to User
-```
+        subgraph "Core Services"
+            Auth[Auth Service<br>(Django REST)]
+            Prop[Property Service<br>(Django REST, PostgreSQL)]
+            Book[Booking Service<br>(Django REST, PostgreSQL)]
+            Rent[Rent Service<br>(Django REST, PostgreSQL)]
+        end
 
-**Impact:** Fully automated workflows without tight coupling between services.
+        subgraph "Real-time Services"
+            Chat[Chat Service<br>(Django Channels, WebSockets)]
+            Notif[Notification Service<br>(Django Channels, WebSockets)]
+        end
 
-### 3️⃣ **Automated Financial Operations** 💸
+        subgraph "Search & Async Services"
+            Search[Search Service<br>(Elasticsearch)]
+            Celery[Celery Workers<br>(Redis Broker)]
+            Beat[Celery Beat<br>(Scheduler)]
+        end
 
-- **Recurring Rent Payments:** Celery Beat schedules monthly charges automatically
-- **Late Fee Calculation:** Smart penalty system based on payment delays  
-- **Payment Reminders:** Real-time notifications before due dates
-- **Stripe Integration:** Secure, PCI-compliant payment processing
-- **Automated Rollbacks:** Failed payments trigger automatic room release
+        subgraph "Event Bus"
+            Kafka[Apache Kafka<br>(Event Stream)]
+        end
+    end
 
-### 4️⃣ **Search That Actually Scales** 🔎
+    %% Client to Gateway
+    WebApp -- REST API/WebSocket --> GW
 
-Traditional database searches die at scale. RentEzy uses **Elasticsearch** with:
-- **Fuzzy matching** for typo-tolerant searches
-- **Geospatial queries** for location-based filtering
-- **Faceted search** with category aggregations
-- **Async indexing** via Kafka consumers for zero write-time penalty
-- **Sub-50ms query latency** even with millions of properties
+    %% Gateway to Services
+    GW -- /auth --> Auth
+    GW -- /properties --> Prop
+    GW -- /book --> Book
+    GW -- /rent --> Rent
+    GW -- /chat --> Chat
+    GW -- /notifications --> Notif
+    GW -- /search --> Search
 
-### 5️⃣ **Real-Time Everything** ⚡
+    %% Kafka Event Producers
+    Book -- Booking Event --> Kafka
+    Prop -- Property Update Event --> Kafka
+    Rent -- Payment Event --> Kafka
+    Chat -- New Message Event --> Kafka
 
-- **WebSocket Chat:** Instant messaging between tenants and landlords
-- **Live Notifications:** Event-driven alerts using Django Channels
-- **Status Updates:** Real-time booking confirmations, payment receipts
-- **Redis-backed channels:** Distributed WebSocket support for horizontal scaling
+    %% Kafka Event Consumers
+    Kafka -- Property Update --> Search
+    Kafka -- Booking/Payment/Message --> Notif
+    Kafka -- Booking Confirmed --> Rent
 
----
+    %% Celery Tasking
+    Beat -- Triggers Monthly --> Rent
+    Rent -- Payment Task --> Celery
+    Celery -- Executes Payment --> Stripe[Stripe API]
+    Book -- Payment Failure --> Celery
 
-## 🔐 Authentication & Authorization Flow
+🛡️ Security & Authentication ArchitectureThe platform uses a Centralized Authentication Pattern to ensure maximum security and separation of concerns. This design isolates all authentication logic to a single service, reducing the attack surface and simplifying all other internal services.Secure Gateway: All public traffic is routed through the api_gateway. All other microservices (e.g., booking_service, auth_service) are internal to the Kubernetes cluster and are not publicly accessible.Dedicated Auth Service: The api_gateway itself does not have the JWT secret key. It acts as an enforcer, not a validator.Token Validation Flow:A client sends a request with a JWT to the api_gateway.The api_gateway sends only the token to the auth_service.The auth_service (the only service with the secret key) validates the token.If valid, auth_service returns a success response with the user's data (e.g., user_id, role).Trusted Forwarding: The api_gateway then injects this trusted user data into the request headers (e.g., X-User-ID, X-User-Role) and forwards it to the appropriate internal service.Zero-Trust Services: The internal services (like booking_service) don't need to perform any authentication. They simply trust the incoming request from the gateway and use the X-User-ID header.Login & Rate Limiting: The gateway also routes login requests to the auth_service to mint new tokens and handles cross-cutting concerns like rate limiting.Authentication Flow DiagramsequenceDiagram
+    actor Client
+    participant API Gateway
+    participant Auth Service
+    participant Internal Service (e.g., Booking)
 
-RentEzy implements a **centralized authentication and authorization system** using JWT and an internal Auth Service, ensuring secure, scalable access control across all microservices.
+    alt Successful API Request
+        Client->>API Gateway: GET /api/bookings (with JWT)
+        API Gateway->>Auth Service: POST /validate (sends token)
+        Note over Auth Service: Decodes & validates token
+        Auth Service-->>API Gateway: 200 OK (returns user_id, role)
+        API Gateway->>Internal Service: GET /bookings (injects X-User-ID)
+        Internal Service-->>API Gateway: 200 OK (returns data)
+        API Gateway-->>Client: 200 OK (returns data)
+    else Invalid Token
+        Client->>API Gateway: GET /api/bookings (with bad JWT)
+        API Gateway->>Auth Service: POST /validate (sends token)
+        Note over Auth Service: Validation fails
+        Auth Service-->>API Gateway: 401 Unauthorized
+        API Gateway-->>Client: 401 Unauthorized
+    else Login Request
+        Client->>API Gateway: POST /api/login (user/pass)
+        API Gateway->>Auth Service: POST /login (user/pass)
+        Note over Auth Service: Verifies credentials, generates new JWT
+        Auth Service-->>API Gateway: 200 OK (returns new JWT)
+        API Gateway-->>Client: 200 OK (returns new JWT)
+    end
 
-### 🧠 Overview
-
-All external traffic enters through the **API Gateway**, which is the *only* publicly accessible component via the Ingress Controller.  
-All backend services communicate internally within the **Kubernetes cluster** through private networking.
-
-- The **Auth Service** exclusively manages user authentication and token issuance.
-- The **API Gateway** handles token validation, authorization, rate limiting, and routing.
-- All other services trust the Gateway for identity verification and do not directly handle credentials.
-
-### ⚙️ Flow Diagram
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Ingress
-    participant Gateway
-    participant Auth
-    participant Service
-
-    Client->>Ingress: HTTP Request (with JWT)
-    Ingress->>Gateway: Forward Request
-    Gateway->>Auth: Validate Token
-    Auth-->>Gateway: ✅ Valid / ❌ Invalid
-    Gateway->>Service: Forward Request (if valid)
-    Service-->>Gateway: Response
-    Gateway-->>Ingress: Response
-    Ingress-->>Client: Final Response
-
-    Note over Gateway,Auth: Auth owns secret key for JWT<br>Gateway just verifies via Auth API
-```
-
-
-## 🛠️ Technology Stack - Built With The Best
-
-### **Backend Powerhouse**
-- **Django REST Framework** - Robust API development with authentication
-- **Apache Kafka** - Distributed event streaming (the nervous system)
-- **Celery + Celery Beat** - Async task processing & scheduled jobs
-- **PostgreSQL** - ACID-compliant primary database with advanced constraints
-- **Elasticsearch** - Full-text search engine with geospatial support
-- **Redis** - Lightning-fast caching, session storage, and message broker
-
-### **Frontend Excellence**
-- **React.js** - Component-based UI with hooks
-- **Redux Toolkit** - Predictable state management
-- **Tailwind CSS** - Utility-first styling
-- **WebSocket Client** - Real-time bidirectional communication
-
-### **DevOps & Infrastructure**
-- **Docker** - Containerization of all 19+ services
-- **Kubernetes (AWS EKS)** - Container orchestration at scale
-- **AWS EFS CSI** - Persistent storage for stateful services
-- **AWS ALB** - Application load balancing
-- **Nginx + Gunicorn** - High-performance web serving
-
-### **Payment & Communication**
-- **Stripe** - Secure payment processing with webhook support
-- **Django Channels** - WebSocket protocol support for real-time features
-
----
-
-## 🎯 Technical Challenges Solved
-
-### **Challenge 1: Distributed Transactions**
-**Problem:** Booking a property involves multiple services (booking, payment, notification).  
-**Solution:** Event-driven saga pattern with Kafka for eventual consistency.
-
-### **Challenge 2: Data Consistency Across Services**
-**Problem:** Each service has its own database. How to maintain consistency?  
-**Solution:** Event sourcing + CQRS patterns with Kafka as the source of truth.
-
-### **Challenge 3: Real-Time at Scale**
-**Problem:** WebSockets are stateful and hard to scale horizontally.  
-**Solution:** Redis-backed channel layers in Django Channels for distributed WebSocket support.
-
-### **Challenge 4: Search Performance**
-**Problem:** SQL searches slow down with millions of properties.  
-**Solution:** Dedicated Elasticsearch cluster with async indexing via Kafka consumers.
-
-### **Challenge 5: Payment Reliability**
-**Problem:** What if payment fails after booking is confirmed?  
-**Solution:** Automated rollback via Celery tasks with configurable retry logic and room release.
-
-### **Challenge 6: Concurrent Booking Race Conditions**
-**Problem:** Multiple users booking the same property simultaneously can cause double-bookings.  
-**Solution:** Database-level CHECK constraints with F() expressions for atomic updates - optimistic concurrency that's faster than traditional locking.
-
----
-
-## 📊 Performance Metrics
-
-- **Concurrent Users:** Handles 10,000+ simultaneous connections
-- **API Response Time:** < 100ms average (with Redis caching)
-- **Search Latency:** < 50ms for complex queries (Elasticsearch)
-- **Uptime:** 99.9% availability with Kubernetes auto-healing
-- **Message Throughput:** 100,000+ Kafka events/second capacity
-- **Zero Double-Bookings:** Database constraints ensure booking integrity
-
----
-
-## 🚀 Deployment Architecture
-
-```yaml
-AWS EKS Cluster
-├── 19+ Kubernetes Deployments (
+🛠️ Services OverviewThe repository is structured as a monorepo containing all independent services:api_gateway: Handles all incoming requests, authentication, and routing.auth_service: Manages user registration, login, and JWT token generation.property_service: CRUD operations for property listings and details.booking_service: Manages property viewing schedules and booking logic (with transactional locking).rent_service: Manages recurring payments, invoices, and Stripe integration.chat_service: WebSocket-based real-time chat.notification_service: WebSocket-based real-time notifications.search_service: Consumes from Kafka to update the Elasticsearch index.kafka, zookeeper: Configuration files for the Kafka cluster.redis: Configuration for Redis (Celery broker & cache).efs-role, storageclass: Kubernetes manifests for AWS EFS persistent storage.💻 Tech StackCategoryTechnologyBackendDjango, Django REST Framework, Django ChannelsFrontendReact.js, Redux Toolkit, Tailwind CSSDatabase & CachingPostgreSQL, Elasticsearch, RedisMessage BrokerApache KafkaTask QueuingCelery, Celery BeatDevOps & CloudDocker, Kubernetes, AWS EKS, AWS EFS, NginxPaymentsStripe APILanguagesPython, JavaScriptFeaturesSecure User Authentication (JWT)Detailed Property Listings with Search & FilteringReal-time Chat between UsersProperty Booking & Visit SchedulingAutomated Monthly Rent Payments (Stripe)Automated Late Fee & Reminder SystemReal-time NotificationsUser Profile Management
