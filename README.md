@@ -265,78 +265,42 @@ Traditional database searches die at scale. RentEzy uses **Elasticsearch** with:
 - **Status Updates:** Real-time booking confirmations, payment receipts
 - **Redis-backed channels:** Distributed WebSocket support for horizontal scaling
 
-🔒 Problem 5: Centralized Authentication Across 19+ Services
-
-How do you secure 19+ microservices without duplicating authentication logic everywhere?
-
-Solution: Implement a Zero-Trust Architecture with a dedicated Auth Service and an API Gateway that acts as the single security boundary for all client requests.
-
-🧭 High-Level Flow
-sequenceDiagram
-    participant Client as 🧑 Client
-    participant Ingress as 🌐 Ingress Controller
-    participant Gateway as 🚪 API Gateway (Rate Limiting • Routing)
-    participant Auth as 🔐 Auth Service (JWT)
-    participant Svc as ⚙️ Internal Services (19+)
-
-    Client->>Ingress: HTTPS Request
-    Ingress->>Gateway: Forward Request
-
-    alt Login
-        Gateway->>Auth: Validate Credentials
-        Auth-->>Gateway: Issue JWT (Signed)
-        Gateway-->>Client: Return JWT Token
-    else Authenticated Request
-        Gateway->>Auth: Verify JWT Token
-        Auth-->>Gateway: Authorized / Unauthorized
-        alt Authorized
-            Gateway->>Svc: Route to Internal Service
-            Svc-->>Gateway: Response
-            Gateway-->>Client: ✅ Success
-        else Unauthorized
-            Gateway-->>Client: ❌ 401 Unauthorized
-        end
-    end
-
-🧱 Architecture Highlights
-
-✅ Single Entry Point: Only the API Gateway is exposed via the Ingress Controller.
-🔐 Centralized Auth Service: JWT secret key lives in one secure location only.
-🛡️ Zero-Trust Gateway: Every request validated before reaching any service.
-🧩 Service Isolation: 19+ internal services have no auth logic of their own.
-⚡ Rate Limiting: Redis-backed throttling ( e.g., 100 req/min per user ).
-
-🔐 Authentication Flow
-
-1️⃣ Login → Gateway → Auth Service
-  • Auth Service validates credentials.
-  • Generates JWT and returns to Gateway.
-  • Gateway returns token to client.
-
-2️⃣ Subsequent Requests
-  • Gateway extracts JWT → Sends to Auth for verification.
-  • Auth decodes with secret key → Responds Authorized/Unauthorized.
-  • Gateway routes to service only if authorized.
-
-🛡️ Why This Architecture Is Superior
-💡 Aspect	🔍 Description
-🔐 Security	Secret key never leaves Auth Service.
-🚀 Performance	Internal K8s networking keeps latency low.
-🧱 Defense in Depth	Gateway + Auth Service = layered security wall.
-🧩 Separation of Concerns	Business services stay focused on core logic.
-📈 Scalability	Auth Service scales independently of others.
-⚙️ Future Enhancements
-
-🔑 Asymmetric JWTs (RSA): Auth signs with private key; Gateway verifies with public key → no per-request Auth call.
-🕒 Short-Lived Tokens + Refresh Tokens: Improve session security and rotation.
-🧰 Revocation List: Redis-based blacklist for instant logout or suspension.
-📊 Observability: Prometheus metrics for auth latency and rate-limit events.
-
-🏁 Result
-
-Centralized authentication flow that delivers enterprise-grade security, zero duplication of auth logic, and seamless scalability across 19+ microservices inside the Kubernetes cluster.
-
 ---
+
+## 🔐 Authentication & Authorization Flow
+
+RentEzy implements a **centralized authentication and authorization system** using JWT and an internal Auth Service, ensuring secure, scalable access control across all microservices.
+
+### 🧠 Overview
+
+All external traffic enters through the **API Gateway**, which is the *only* publicly accessible component via the Ingress Controller.  
+All backend services communicate internally within the **Kubernetes cluster** through private networking.
+
+- The **Auth Service** exclusively manages user authentication and token issuance.
+- The **API Gateway** handles token validation, authorization, rate limiting, and routing.
+- All other services trust the Gateway for identity verification and do not directly handle credentials.
+
+### ⚙️ Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Ingress
+    participant Gateway
+    participant Auth
+    participant Service
+
+    Client->>Ingress: HTTP Request (with JWT)
+    Ingress->>Gateway: Forward Request
+    Gateway->>Auth: Validate Token
+    Auth-->>Gateway: ✅ Valid / ❌ Invalid
+    Gateway->>Service: Forward Request (if valid)
+    Service-->>Gateway: Response
+    Gateway-->>Ingress: Response
+    Ingress-->>Client: Final Response
+
+    Note over Gateway,Auth: Auth owns secret key for JWT<br>Gateway just verifies via Auth API
+
 
 ## 🛠️ Technology Stack - Built With The Best
 
