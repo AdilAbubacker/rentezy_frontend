@@ -298,8 +298,9 @@ sequenceDiagram
     Service-->>Gateway: Response
     Gateway-->>Ingress: Response
     Ingress-->>Client: Final Response
-```
+
     Note over Gateway,Auth: Auth owns secret key for JWT<br>Gateway just verifies via Auth API
+```
 
 
 ## 🛠️ Technology Stack - Built With The Best
