@@ -1,3 +1,26 @@
+### 🔍 Search Indexing Flow
+
+```mermaid
+sequenceDiagram
+    participant L as Landlord
+    participant P as Property Service (PostgreSQL)
+    participant K as Kafka Topic (property-events)
+    participant C as Search Consumer
+    participant E as Elasticsearch
+    participant U as Customer
+    participant S as Search Service
+
+    L->>P: Add / Update Property
+    P->>P: Write to PostgreSQL
+    P-->>K: Publish "property_created" event
+    K-->>C: Deliver event
+    C->>E: Index / Update property document
+    U->>S: Search property listings
+    S->>E: Query Elasticsearch
+    E-->>S: Return search results
+    S-->>U: Display properties
+```
+
 ```mermaid
 flowchart LR
 Manager["UI / App for Landlords"]
