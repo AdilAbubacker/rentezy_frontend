@@ -1,59 +1,46 @@
 ```mermaid
 flowchart LR
+Manager["UI / App for Landlords"]
+Customer["UI / App for Customers"]
+LB["Load Balancer / API Gateway"]
 
-%% Clients / Edge
-Manager[UI / App for Landlords]
-Customer[UI / App for Customers]
-LB[Load Balancer / API Gateway]
+PropertySvc["Property Service"]
+SearchSvc["Search Service"]
+BookingSvc["Booking Service"]
+PaymentSvc["Payment Service (Stripe)"]
+
+PGPrimary["PostgreSQL Primary"]
+PGReplica1["Replica 1"]
+PGReplica2["Replica 2"]
+
+ES["Elasticsearch Cluster"]
+CDN["Content Delivery Network"]
+
+topicProps["Kafka topic: property-events"]
+topicBookings["Kafka topic: booking-events"]
+topicPayments["Kafka topic: payment-events"]
+DLQ["Kafka Dead-Letter Queue"]
+
+SearchConsumer["Search Kafka Consumer"]
+NotifyConsumer["Notification Kafka Consumer"]
 
 Manager --- LB
 Customer --- LB
-
-%% Core Services
-subgraph Services
-  direction TB
-  PropertySvc[Property Service]
-  SearchSvc[Search Service]
-  BookingSvc[Booking Service]
-  PaymentSvc[Payment Service (Stripe)]
-end
 
 LB --> PropertySvc
 LB --> SearchSvc
 LB --> BookingSvc
 LB --> PaymentSvc
 
-%% Data Stores
-subgraph Property_DB_-_PostgreSQL
-  PGPrimary[(Primary)]
-  PGReplica1[(Replica 1)]
-  PGReplica2[(Replica 2)]
-end
-
 PropertySvc --> PGPrimary
 PGPrimary --> PGReplica1
 PGPrimary --> PGReplica2
-
-ES[(Elasticsearch Cluster)]
-CDN[(Content Delivery Network)]
 PropertySvc --> CDN
 
-%% Kafka Backbone
-subgraph Kafka
-  topicProps((property-events))
-  topicBookings((booking-events))
-  topicPayments((payment-events))
-  DLQ((dead-letter-queue))
-end
-
-%% Producers
 PropertySvc -- publish --> topicProps
 BookingSvc -- publish --> topicBookings
 PaymentSvc -- publish --> topicPayments
-
-%% Consumers
-SearchConsumer[Search Kafka Consumer]
-NotifyConsumer[Notification Kafka Consumer]
+topicPayments --> DLQ
 
 topicProps --> SearchConsumer
 SearchConsumer --> ES
@@ -63,7 +50,6 @@ topicBookings --> NotifyConsumer
 topicPayments --> NotifyConsumer
 NotifyConsumer --> LB
 
-%% Read path
 SearchSvc --> ES
 
 ```
