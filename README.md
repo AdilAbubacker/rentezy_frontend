@@ -1,3 +1,5 @@
+```mermaid
+
 %% ---------------------------
 %% RentEzy — Architecture Map
 %% ---------------------------
@@ -43,3 +45,4 @@ flowchart LR
   %% Notifications
   K -- booking/alert events --> NC
   NC -->|WebSocket / Push| C
+```
