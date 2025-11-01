@@ -24,7 +24,7 @@ LB --> BookingSvc
 LB --> PaymentSvc
 
 %% Data Stores
-subgraph "Property DB — PostgreSQL"
+subgraph Property_DB_-_PostgreSQL
   PGPrimary[(Primary)]
   PGReplica1[(Replica 1)]
   PGReplica2[(Replica 2)]
@@ -65,6 +65,7 @@ NotifyConsumer --> LB
 
 %% Read path
 SearchSvc --> ES
+
 
 
 
