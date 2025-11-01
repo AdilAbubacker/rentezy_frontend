@@ -66,7 +66,4 @@ NotifyConsumer --> LB
 %% Read path
 SearchSvc --> ES
 
-
-
-
 ```
