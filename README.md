@@ -1,48 +1,24 @@
 ```mermaid
 
-%% ---------------------------
-%% RentEzy — Architecture Map
-%% ---------------------------
-flowchart LR
-  %% Clients
-  subgraph Clients
-    L[UI / App\nfor Landlords]
-    C[UI / App\nfor Customers]
-  end
+sequenceDiagram
+    participant Landlord as 🧑‍💼 Landlord (Property Owner)
+    participant PropertySvc as 🏗️ Property Service (PostgreSQL)
+    participant Kafka as ☕ Kafka Broker (property-events)
+    participant SearchConsumer as 🔄 Search Consumer
+    participant ES as 🔍 Elasticsearch Cluster
+    participant Customer as 👩‍💻 Customer (Tenant)
+    participant SearchSvc as 🧠 Search Service (API)
 
-  LB[API Gateway / Load Balancer]
-  CDN[Content Delivery Network]
+    Landlord->>PropertySvc: Create / Update Property
+    PropertySvc->>PropertySvc: Store property in PostgreSQL
+    PropertySvc-->>Kafka: Publish "property_created" event
+    Kafka-->>SearchConsumer: Consume property event
+    SearchConsumer->>ES: Index / Update property in Elasticsearch
+    ES-->>SearchConsumer: Acknowledge index success
+    
+    Customer->>SearchSvc: Search for property (filters, keywords)
+    SearchSvc->>ES: Query Elasticsearch
+    ES-->>SearchSvc: Return matching documents
+    SearchSvc-->>Customer: Return search results (low latency)
 
-  %% Services
-  subgraph Services
-    PS[Property Service\n(Django + DRF)]
-    SS[Search Service\n(Django/FAST API)]
-    NC[Notification Service]
-    SC[Search Consumer\n(Kafka -> ES Indexer)]
-  end
-
-  %% Data + Infra
-  subgraph Data & Infra
-    PG[(PostgreSQL)]
-    ES[(Elasticsearch Cluster)]
-    K{{Kafka\n(property-events,\nsearch-index)}}
-  end
-
-  %% Flows
-  L -->|CRUD Listings| LB --> PS
-  L -->|Static Assets| CDN
-
-  PS -->|Write| PG
-  PS -- publish events --> K
-
-  %% Indexing path
-  K -- property_created/updated --> SC
-  SC -->|Index/Update| ES
-
-  %% Read path
-  C -->|Search| LB --> SS --> ES
-
-  %% Notifications
-  K -- booking/alert events --> NC
-  NC -->|WebSocket / Push| C
 ```
