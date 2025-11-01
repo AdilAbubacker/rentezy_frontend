@@ -1,19 +1,17 @@
 ```mermaid
-
-%% RentEzy — High-level Architecture (GitHub-compatible version)
 flowchart LR
 
-subgraph Clients
-  Manager[UI / APP for Landlords]
-  Customer[UI / APP for Customers]
-end
-
+%% Clients / Edge
+Manager[UI / App for Landlords]
+Customer[UI / App for Customers]
 LB[Load Balancer / API Gateway]
 
-Manager --> LB
-Customer --> LB
+Manager --- LB
+Customer --- LB
 
+%% Core Services
 subgraph Services
+  direction TB
   PropertySvc[Property Service]
   SearchSvc[Search Service]
   BookingSvc[Booking Service]
@@ -25,38 +23,37 @@ LB --> SearchSvc
 LB --> BookingSvc
 LB --> PaymentSvc
 
-subgraph Databases
-  subgraph PG[Property DB (PostgreSQL Cluster)]
-    PGPrimary[(Primary)]
-    PGReplica1[(Replica 1)]
-    PGReplica2[(Replica 2)]
-  end
-  ES[(Elasticsearch Cluster)]
-  CDN[(Content Delivery Network)]
+%% Data Stores
+subgraph "Property DB — PostgreSQL"
+  PGPrimary[(Primary)]
+  PGReplica1[(Replica 1)]
+  PGReplica2[(Replica 2)]
 end
 
 PropertySvc --> PGPrimary
 PGPrimary --> PGReplica1
 PGPrimary --> PGReplica2
+
+ES[(Elasticsearch Cluster)]
+CDN[(Content Delivery Network)]
 PropertySvc --> CDN
 
+%% Kafka Backbone
 subgraph Kafka
-  direction TB
-  topicProps[(property-events)]
-  topicBookings[(booking-events)]
-  topicPayments[(payment-events)]
-  DLQ[(Dead-Letter Queue)]
+  topicProps((property-events))
+  topicBookings((booking-events))
+  topicPayments((payment-events))
+  DLQ((dead-letter-queue))
 end
 
-PropertySvc --> topicProps
-BookingSvc --> topicBookings
-PaymentSvc --> topicPayments
+%% Producers
+PropertySvc -- publish --> topicProps
+BookingSvc -- publish --> topicBookings
+PaymentSvc -- publish --> topicPayments
 
-subgraph Consumers
-  direction TB
-  SearchConsumer[Search Kafka Consumer]
-  NotifyConsumer[Notification Kafka Consumer]
-end
+%% Consumers
+SearchConsumer[Search Kafka Consumer]
+NotifyConsumer[Notification Kafka Consumer]
 
 topicProps --> SearchConsumer
 SearchConsumer --> ES
@@ -66,6 +63,7 @@ topicBookings --> NotifyConsumer
 topicPayments --> NotifyConsumer
 NotifyConsumer --> LB
 
+%% Read path
 SearchSvc --> ES
 
 
