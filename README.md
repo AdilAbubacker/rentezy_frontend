@@ -22,8 +22,7 @@ graph LR
     UI[UI/APP for Customers<br/>Search]
     SC[Search Consumer<br/>Indexing Layer]
 
-    RZ -->LUI
-    RZ --> UI
+
     LUI -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
     UI -->|Search Queries| SS[Search Service]
 
