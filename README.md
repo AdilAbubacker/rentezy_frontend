@@ -20,12 +20,10 @@ graph LR
     LUI[UI/APP for Landlords]
     PS[Property Service<br/>CRUD Operations]
     DB[(PostgreSQL)]
-    K[Kafka<br/>Event Stream]
 
     LUI -->|CRUD Operations| PS
     PS -->|Writes| DB
-    DB --> K
-    PS -->|Property Events| K
+    
 
     UI[UI/APP for Customers<br/>Search]
     SS[Search Service]
@@ -38,7 +36,9 @@ graph LR
     SC -->|Update Index| ES
     
     
-    
+    K[Kafka<br/>Event Stream]
+    DB --> K
+    PS -->|Property Events| K
     
     style SS fill:#a8d5e2
     style PS fill:#a8d5e2
