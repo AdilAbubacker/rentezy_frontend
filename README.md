@@ -20,7 +20,7 @@ graph TD
     subgraph "Services"
         A["Property Service (Writes)"]
         B["Search Consumer (Indexing)"]
-        C[Search Service (Queries)]
+        C["Search Service (Queries)"]
     end
 
     subgraph "Databases & Brokers"
