@@ -30,6 +30,7 @@ graph LR
     
     PS -->|Writes| DB[(PostgreSQL)]
     PS -->|Property Events| K[Kafka<br/>Event Stream]
+    DB --> K
 
     SS -->|Read Queries| ES[(Elasticsearch<br/>Cluster)]
 
