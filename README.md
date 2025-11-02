@@ -16,24 +16,30 @@ This separation ensures:
 ### 🔍 Search Indexing Flow
 
 ```mermaid
-graph TD
-    subgraph "Services"
+graph LR
+    subgraph "Write Path (Property Management)"
         A["Property Service (Writes)"]
-        B["Search Consumer (Indexing)"]
-        C["Search Service (Queries)"]
+        B[PostgreSQL DB]
+        A -- "Writes / Reads" --> B
     end
 
-    subgraph "Databases & Brokers"
-        D[PostgreSQL DB]
+    subgraph "Read Path (Customer Search)"
+        C["UI / APP for Customers"]
+        D["Search Service (Queries)"]
+        C --> D
+    end
+
+    subgraph "Data Pipeline & Index"
         E[Kafka]
-        F[Elasticsearch Cluster]
+        F["Search Consumer (Indexing)"]
+        G[Elasticsearch Cluster]
+        E -- "Search Events" --> F
+        F -- "Indexes Data" --> G
     end
 
-    A -- "Writes / Reads" --> D
+    %% Connections Between Paths
     A -- "Property Events" --> E
-    E -- "Search Events" --> B
-    B -- "Indexes Data" --> F
-    C -- "Search Queries" --> F
+    D -- "Search Queries" --> G
 ```
 
 ```mermaid
