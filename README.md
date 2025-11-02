@@ -17,8 +17,13 @@ This separation ensures:
 
 ```mermaid
 graph LR
-    RZ[RZ] -->LUI[UI/APP for Landlords]
-    RZ --> UI[UI/APP for Customers<br/>Search]
+    RZ[RZ]
+    LUI[UI/APP for Landlords]
+    UI[UI/APP for Customers<br/>Search]
+    SC[Search Consumer<br/>Indexing Layer]
+
+    RZ -->LUI
+    RZ --> UI
     LUI -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
     UI -->|Search Queries| SS[Search Service]
 
@@ -28,7 +33,6 @@ graph LR
 
     SS -->|Read Queries| ES[(Elasticsearch<br/>Cluster)]
 
-    K -->|Consume Events| SC[Search Consumer<br/>Indexing Layer]
     
     SC -->|Update Index| ES
     
