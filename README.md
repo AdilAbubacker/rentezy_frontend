@@ -37,7 +37,6 @@ graph LR
     
     
     K[Kafka<br/>Event Stream]
-    DB --> K
     PS -->|Property Events| K
     K -->|Consume Events| SC
     
