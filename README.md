@@ -17,7 +17,6 @@ This separation ensures:
 
 ```mermaid
 graph LR
-graph LR
     LUI[UI/APP for Landlords] -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
     
     PS -->|Writes| DB[(PostgreSQL)]
