@@ -16,24 +16,41 @@ This separation ensures:
 ### 🔍 Search Indexing Flow
 
 ```mermaid
-sequenceDiagram
-    participant L as Landlord
-    participant P as Property Service (PostgreSQL)
-    participant K as Kafka Topic (property-events)
-    participant C as Search Consumer
-    participant E as Elasticsearch
-    participant U as Customer
-    participant S as Search Service
+graph TD
+    subgraph "UI / APP"
+        A[UI / APP for Customers - Search]
+        B[UI / APP for Hotel Manager]
+    end
 
-    L->>P: Add / Update Property
-    P->>P: Write to PostgreSQL
-    P-->>K: Publish "property_created" event
-    K-->>C: Deliver event
-    C->>E: Index / Update property document
-    U->>S: Search property listings
-    S->>E: Query Elasticsearch
-    E-->>S: Return search results
-    S-->>U: Display properties
+    subgraph "Services"
+        C[Property Service (PostgreSQL)]
+        D[Hotel Service]
+        E[Search Service]
+        F[Search Consumer (Indexing Layer)]
+        G[Notification Kafka Consumer]
+    end
+
+    subgraph "Databases & External Systems"
+        H[PostgreSQL DB]
+        I[Hotels DB MySQL Cluster]
+        J[Elasticsearch Cluster]
+        K[Kafka]
+        L[Content Delivery Network]
+    end
+
+    A --> E
+    E -- Search Queries / Results --> J
+    C -- Writes / Reads --> H
+    C -- Property Events --> K
+    K -- Search Events --> F
+    F --> J
+
+    B --> D
+    D -- Hotel Data --> I
+    D --> L
+    I -- Hotel Events --> K
+    K -- Notification Events --> G
+    G --> K
 ```
 
 ```mermaid
