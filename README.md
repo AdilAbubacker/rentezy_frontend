@@ -17,8 +17,10 @@ This separation ensures:
 
 ```mermaid
 graph LR
-    LUI[UI/APP for Landlords] -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
-    UI[UI/APP for Customers<br/>Search] -->|Search Queries| SS[Search Service]
+    RZ[RZ] -->LUI[UI/APP for Landlords]
+    RZ --> UI[UI/APP for Customers<br/>Search]
+    LUI -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
+    UI -->|Search Queries| SS[Search Service]
 
     
     PS -->|Writes| DB[(PostgreSQL)]
