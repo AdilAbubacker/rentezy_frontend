@@ -18,11 +18,12 @@ This separation ensures:
 ```mermaid
 graph LR
     LUI[UI/APP for Landlords] -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
+    UI[UI/APP for Customers<br/>Search] -->|Search Queries| SS[Search Service]
+
     
     PS -->|Writes| DB[(PostgreSQL)]
     PS -->|Property Events| K[Kafka<br/>Event Stream]
 
-    UI[UI/APP for Customers<br/>Search] -->|Search Queries| SS[Search Service]
     SS -->|Read Queries| ES[(Elasticsearch<br/>Cluster)]
 
     K -->|Consume Events| SC[Search Consumer<br/>Indexing Layer]
