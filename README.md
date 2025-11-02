@@ -26,7 +26,7 @@ graph TD
         C["Property Service (PostgreSQL)"]
         D[Hotel Service]
         E[Search Service]
-        F[Search Consumer (Indexing Layer)]
+        F["Search Consumer (Indexing Layer)"]
         G[Notification Kafka Consumer]
     end
 
@@ -39,17 +39,17 @@ graph TD
     end
 
     A --> E
-    E -- Search Queries / Results --> J
-    C -- Writes / Reads --> H
-    C -- Property Events --> K
-    K -- Search Events --> F
+    E -- "Search Queries / Results" --> J
+    C -- "Writes / Reads" --> H
+    C -- "Property Events" --> K
+    K -- "Search Events" --> F
     F --> J
 
     B --> D
-    D -- Hotel Data --> I
+    D -- "Hotel Data" --> I
     D --> L
-    I -- Hotel Events --> K
-    K -- Notification Events --> G
+    I -- "Hotel Events" --> K
+    K -- "Notification Events" --> G
     G --> K
 ```
 
