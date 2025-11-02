@@ -16,23 +16,26 @@ This separation ensures:
 ### 🔍 Search Indexing Flow
 
 ```mermaid
-graph TD
-    UI_APP_CUSTOMERS["UI / APP for Customers"]
-    SEARCH_SERVICE["Search Service (Queries)"]
-    PROPERTY_SERVICE["Property Service (Writes)"]
-    POSTGRESQL_DB[(PostgreSQL DB)]
-    KAFKA_BROKER{Kafka}
-    SEARCH_CONSUMER["Search Consumer (Indexing)"]
-    ELASTICSEARCH_CLUSTER[(Elasticsearch Cluster)]
-
-    UI_APP_CUSTOMERS --> SEARCH_SERVICE
-    SEARCH_SERVICE -- "Search Queries" --> ELASTICSEARCH_CLUSTER
-
-    PROPERTY_SERVICE -- "Writes / Reads" --> POSTGRESQL_DB
-    PROPERTY_SERVICE -- "Property Events" --> KAFKA_BROKER
-
-    KAFKA_BROKER -- "Search Events" --> SEARCH_CONSUMER
-    SEARCH_CONSUMER -- "Indexes Data" --> ELASTICSEARCH_CLUSTER
+graph LR
+    UI[UI/APP for Customers<br/>Search] -->|Search Queries| SS[Search Service]
+    
+    SS -->|Read Queries| ES[(Elasticsearch<br/>Cluster)]
+    
+    PS[Property Service<br/>CRUD Operations] -->|Property Events| K[Kafka<br/>Event Stream]
+    
+    K -->|Consume Events| SC[Search Consumer<br/>Indexing Layer]
+    
+    SC -->|Update Index| ES
+    
+    PS -.->|Writes| DB[(PostgreSQL)]
+    
+    style SS fill:#a8d5e2
+    style PS fill:#a8d5e2
+    style SC fill:#a8d5e2
+    style ES fill:#ffb3b3
+    style K fill:#ffd9b3
+    style DB fill:#c9b3ff
+    style UI fill:#c8e6c9
 ```
 
 ```mermaid
