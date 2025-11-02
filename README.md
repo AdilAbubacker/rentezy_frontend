@@ -23,7 +23,7 @@ graph TD
     end
 
     subgraph "Services"
-        C[Property Service (PostgreSQL)]
+        C["Property Service (PostgreSQL)"]
         D[Hotel Service]
         E[Search Service]
         F[Search Consumer (Indexing Layer)]
