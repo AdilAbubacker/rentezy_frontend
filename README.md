@@ -17,17 +17,21 @@ This separation ensures:
 
 ```mermaid
 graph LR
+graph LR
+    LUI[UI/APP for Landlords] -->|CRUD Operations| PS[Property Service<br/>CRUD Operations]
+    
+    PS -->|Writes| DB[(PostgreSQL)]
+    PS -->|Property Events| K[Kafka<br/>Event Stream]
+
     UI[UI/APP for Customers<br/>Search] -->|Search Queries| SS[Search Service]
-    
     SS -->|Read Queries| ES[(Elasticsearch<br/>Cluster)]
-    
-    PS[Property Service<br/>CRUD Operations] -->|Property Events| K[Kafka<br/>Event Stream]
-    
+
     K -->|Consume Events| SC[Search Consumer<br/>Indexing Layer]
     
     SC -->|Update Index| ES
     
-    PS -.->|Writes| DB[(PostgreSQL)]
+    
+    
     
     style SS fill:#a8d5e2
     style PS fill:#a8d5e2
