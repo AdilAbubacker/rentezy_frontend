@@ -17,40 +17,23 @@ This separation ensures:
 
 ```mermaid
 graph TD
-    subgraph "UI / APP"
-        A[UI / APP for Customers - Search]
-        B[UI / APP for Hotel Manager]
-    end
-
     subgraph "Services"
-        C["Property Service (PostgreSQL)"]
-        D[Hotel Service]
-        E[Search Service]
-        F["Search Consumer (Indexing Layer)"]
-        G[Notification Kafka Consumer]
+        A["Property Service (Writes)"]
+        B["Search Consumer (Indexing)"]
+        C[Search Service (Queries)]
     end
 
-    subgraph "Databases & External Systems"
-        H[PostgreSQL DB]
-        I[Hotels DB MySQL Cluster]
-        J[Elasticsearch Cluster]
-        K[Kafka]
-        L[Content Delivery Network]
+    subgraph "Databases & Brokers"
+        D[PostgreSQL DB]
+        E[Kafka]
+        F[Elasticsearch Cluster]
     end
 
-    A --> E
-    E -- "Search Queries / Results" --> J
-    C -- "Writes / Reads" --> H
-    C -- "Property Events" --> K
-    K -- "Search Events" --> F
-    F --> J
-
-    B --> D
-    D -- "Hotel Data" --> I
-    D --> L
-    I -- "Hotel Events" --> K
-    K -- "Notification Events" --> G
-    G --> K
+    A -- "Writes / Reads" --> D
+    A -- "Property Events" --> E
+    E -- "Search Events" --> B
+    B -- "Indexes Data" --> F
+    C -- "Search Queries" --> F
 ```
 
 ```mermaid
