@@ -271,24 +271,41 @@ except IntegrityError as e:
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Ingress
-    participant Gateway
-    participant Auth
-    participant Service
+    participant User
+    participant BookingService
+    participant BookingDB
+    participant Celery
+    participant PaymentService
+    participant Stripe
 
-    Client->>Ingress: HTTP Request (with JWT)
-    Ingress->>Gateway: Forward Request
-    Gateway->>Auth: Validate Token
-    Auth-->>Gateway: ✅ Valid / ❌ Invalid
-    alt Token Valid
-        Gateway->>Service: Forward Request
-        Service-->>Gateway: Response
-        Gateway-->>Ingress: Response
-    else Token Invalid
-        Gateway-->>Ingress: 401 Unauthorized
+    User->>BookingService: Book Now
+    BookingService->>BookingDB: Check availability
+    BookingService->>BookingDB: Create booking (status=pending), decrement quantity
+    BookingService->>Celery: Start timer (5-10 min)
+    BookingService->>User: Redirect to Stripe Payment
+
+    User->>Stripe: Pay
+    Stripe-->>PaymentService: Webhook callback (payment success)
+    PaymentService->>BookingDB: Update booking (status=completed)
+    PaymentService->>BookingService: Emit event (booking completed)
+
+    Celery-->>BookingService: Timer expired (callback)
+    BookingService->>BookingDB: Check booking status
+    alt status == pending
+        BookingService->>BookingDB: Cancel booking + increment quantity
+    else status == completed
+        BookingService->>BookingDB: Do nothing
     end
-    Ingress-->>Client: Final Response
+
+    alt Late Payment After Timeout
+        PaymentService->>BookingDB: Check availability
+        alt available
+            PaymentService->>BookingDB: Book room again
+        else not available
+            PaymentService->>Stripe: Refund payment
+        end
+    end
+
 ```
 
 **Architecture Highlights:**
