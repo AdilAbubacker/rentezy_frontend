@@ -52,7 +52,7 @@ graph TD
     Booking --> Kafka
     Kafka --> Elastic
     Redis --> EFS
-
+```
 
 # 🏡 RentEzy - Enterprise-Grade Property Management Platform
 
