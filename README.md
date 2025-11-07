@@ -31,6 +31,7 @@ RentEzy is deployed as a **fully containerized microservices system** orchestrat
 ---
 
 ### 🖥️ Deployment Architecture Diagram
+
 ```mermaid
 graph TD
     subgraph AWS EKS Cluster (Fargate)
@@ -52,6 +53,7 @@ graph TD
     Booking --> Kafka
     Kafka --> Elastic
     Redis --> EFS
+
 ```
 
 # 🏡 RentEzy - Enterprise-Grade Property Management Platform
