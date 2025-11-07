@@ -1,3 +1,59 @@
+## ☁️ Deployment & Infrastructure Architecture
+
+RentEzy is deployed as a **fully containerized microservices system** orchestrated via **Kubernetes (AWS EKS on Fargate)**, designed for **high availability**, **auto-scaling**, and **zero-downtime updates**.
+
+### 🏗️ Infrastructure Overview
+| Component | Technology | Purpose |
+|------------|-------------|----------|
+| **Containerization** | 🐳 Docker | Each service (Booking, Auth, Search, Payment, etc.) packaged as an independent image |
+| **Orchestration** | 🎯 Kubernetes (AWS EKS on Fargate) | Managed serverless cluster with automatic pod scaling & node provisioning |
+| **Storage** | 💾 AWS EFS CSI Driver | Persistent shared storage for stateful workloads such as Elasticsearch, Redis, and Kafka |
+| **Ingress & Load Balancing** | 🌐 AWS ALB + Nginx Ingress Controller | Layer-7 routing, SSL termination, and traffic distribution across microservices |
+| **Web Server for APIs** | ⚙️ Gunicorn + Nginx | Production WSGI stack for Django REST Framework services |
+| **Service Deployment** | 🚀 Helm Charts | Simplified and version-controlled deployment of third-party services (Kafka, Redis, Elasticsearch) |
+| **Monitoring & Scaling** | 📈 AWS CloudWatch + Horizontal Pod Autoscaler | Metrics-driven scaling and operational insights |
+
+### 🔧 Deployment Pipeline
+1. **Build & Push Docker Images** to Amazon ECR.  
+2. **Helm Install Third-Party Services** (Kafka, Redis, Elasticsearch) inside the EKS cluster.  
+3. **Deploy Microservices** using `kubectl` or CI/CD pipeline manifests.  
+4. **Ingress Controller + ALB** expose public endpoints with HTTPS termination.  
+5. **AWS EFS Mounts** provide persistent volumes for stateful sets.  
+6. **Rolling Updates** ensure zero-downtime deployments for all services.
+
+### ⚡ Highlights
+- **Serverless Kubernetes (Fargate)** → automatic node management, pay-per-pod scaling.  
+- **Helm-managed Infra** → one-command reproducible environments.  
+- **Persistent Storage via EFS** → durable shared volumes for logs and indexes.  
+- **Enterprise-grade Networking** → Nginx Ingress + AWS ALB for multi-service routing.  
+- **Optimized Django Delivery** → Nginx + Gunicorn stack with pre-fork workers for high throughput.
+
+---
+
+### 🖥️ Deployment Architecture Diagram
+```mermaid
+graph TD
+    subgraph AWS EKS Cluster (Fargate)
+        subgraph Django Services
+            API[REST API (Gunicorn + Nginx)]
+            Auth[Auth Service]
+            Booking[Booking Service]
+            Payment[Payment Service]
+        end
+        Kafka[(Apache Kafka)]
+        Redis[(Redis Cache)]
+        Elastic[(Elasticsearch)]
+        Ingress[Ingress Controller (Nginx)]
+        EFS[(AWS EFS Persistent Storage)]
+    end
+    ALB[AWS ALB Load Balancer] --> Ingress
+    Ingress --> API & Auth & Booking & Payment
+    API --> Redis
+    Booking --> Kafka
+    Kafka --> Elastic
+    Redis --> EFS
+
+
 # 🏡 RentEzy - Enterprise-Grade Property Management Platform
 
 <div align="center">
