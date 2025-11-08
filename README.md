@@ -14,26 +14,19 @@
 ### **Infrastructure Overview**
 
 ```mermaid
-graph LR
-    Internet((🌐<br/>Internet<br/>Traffic))
-    ALB[AWS ALB<br/>Load Balancer]
-    Ingress[Kubernetes<br/>Ingress]
-    Gateway[API Gateway<br/>Nginx + Gunicorn]
-    Services[19+ Microservices<br/>Docker Containers]
-    Storage[(AWS EFS<br/>Persistent Storage)]
+flowchart LR
+    A[Internet Traffic] -->|HTTPS| B[AWS ALB]
+    B -->|Routes| C[K8s Ingress]
+    C -->|Forwards| D[API Gateway<br/>Nginx + Gunicorn]
+    D -->|Auth & Route| E[Internal Services<br/>19+ Containers]
+    E -.->|Storage| F[(AWS EFS)]
     
-    Internet ==>|HTTPS| ALB
-    ALB ==>|Route| Ingress
-    Ingress ==>|Forward| Gateway
-    Gateway ==>|Auth & Route| Services
-    Services -.->|Read/Write| Storage
-    
-    style Internet fill:#4285f4,stroke:#1967d2,stroke-width:4px,color:#fff
-    style ALB fill:#ff9900,stroke:#ec7211,stroke-width:3px,color:#fff
-    style Ingress fill:#326ce5,stroke:#2450c7,stroke-width:3px,color:#fff
-    style Gateway fill:#009639,stroke:#00823b,stroke-width:3px,color:#fff
-    style Services fill:#2496ed,stroke:#1d7ac7,stroke-width:3px,color:#fff
-    style Storage fill:#ff9900,stroke:#ec7211,stroke-width:3px,color:#fff
+    style A fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style B fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style C fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+    style D fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style E fill:#E91E63,stroke:#AD1457,stroke-width:2px,color:#fff
+    style F fill:#FFC107,stroke:#F57F17,stroke-width:2px,color:#000
 ```
 
 ### **Deployment Stack Breakdown**
