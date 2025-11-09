@@ -136,7 +136,7 @@ This isn't a tutorial project. This is a **battle-tested microservices architect
 
 ## 💎 Technical Achievements That Matter
 
-### 🎯 Problem 1: Concurrency Control in High-Traffic Bookings
+### 🎯 Problem 1: Concurrency Control & Race Condition Prevention in High-Traffic Bookings
 **The Problem:** Race conditions when multiple users book the same property simultaneously—the classic "sold twice" nightmare
 
 **The Solution:** Implemented **optimistic concurrency control** with database-level atomicity using F() expressions and check constraints
